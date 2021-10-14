@@ -22,31 +22,7 @@
                   <IonLabel v-else>{{ task.title }}</IonLabel>
                 </IonListHeader>
 
-                <IonItemSliding
-                  v-else-if="!task.isCompleted || settings.showCompleted"
-                >
-                  <ion-item-options
-                    v-if="!task.isCompleted"
-                    side="start"
-                  >
-                    <ion-item-option @click="doneTask(task)">Сделано</ion-item-option>
-                  </ion-item-options>
-                  <ion-item
-                    :class="{ 'is-completed': task.completed }"
-                  >
-                    <ion-label>
-                      {{ task.title }}
-                    </ion-label>
-                    <ion-reorder slot="end"></ion-reorder>
-                    <ion-button
-                      color="warning"
-                      slot="end"
-                      @click="removeTask(index)"
-                    >
-                      <ion-icon slot="icon-only" :icon="closeIcon"></ion-icon>
-                    </ion-button>
-                  </ion-item>
-                </IonItemSliding>
+               
 
               </template>
             </ion-reorder-group>
@@ -165,8 +141,8 @@ export default  {
     const tasksData = JSON.parse(localStorage.getItem('tasks')) || {}
     const tasks = reactive(tasksData)
 
-    const tagsData = JSON.parse(localStorage.getItem('tags')) || []
-    const tags = ref(tagsData)
+    const tagsData = JSON.parse(localStorage.getItem('tags')) || {}
+    const tags = reactive(tagsData)
     
     const monthes = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
     const now = new Date().toISOString()
@@ -257,7 +233,7 @@ export default  {
           let taskTags = []
 
           if (tagsMatched.length !== 0) {
-            const tagsExistsBeforeParseCount = tags.value.length
+
             tagsMatched.forEach(tag => {
               const tagSlug = Slugify(tag[1])
               const tagO = {
@@ -265,12 +241,10 @@ export default  {
                 slug: tagSlug,
                 color: Math.floor(Math.random() * 16777215).toString(16)
               }
-              if (!tags.value.find(it => it.slug === tagSlug)) {
-                tags.value.push(tagO)
-              }
+              if (!tags[tagSlug]) tags[tagSlug] = tagO
               taskTags.push(tagO.slug)
             })
-            if (tags.value.length !== tagsExistsBeforeParseCount) localStorage.setItem('tags', JSON.stringify(tags.value))
+            localStorage.setItem('tags', JSON.stringify(tags))
           }
           
           if (!tasks[dateKey]) tasks[dateKey] = {
